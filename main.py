@@ -5,16 +5,18 @@ import kivy
 kivy.require('1.8.0')
 from kivy.app import App
 from kivy.lang import Builder
-from MapCanvas import MapCanvas
-from MainMenu import MainMenu
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.image import Image
-from SettingsJson import settings_json
 from kivy.core.audio import SoundLoader
-from HelpMenu import HelpMenu
 from kivy.utils import platform
+
+from MapCanvas import MapCanvas
+from MainMenu import MainMenu
+from SettingsJson import settings_json
+from HelpMenu import HelpMenu
+
 from data.gameData import *
 
 try:
@@ -27,10 +29,9 @@ Builder.load_file('gameScreen.kv')
 Builder.load_file('mainMenu.kv')
 
 if use_ads:
-    if platform() == 'android':
-        REVMOB_APP_ID = 'android_id'
-    elif platform() == 'ios':
-        REVMOB_APP_ID = 'ios_id'
+    plat = platform()
+    if plat in ("android", "ios"):
+        REVMOB_APP_ID = "{}_id".format(plat)
     else:
         REVMOB_APP_ID = 'unknown platform for RevMob'
 
@@ -54,21 +55,23 @@ class HexTap(App):
         self.hardcoreOption = False
 
     def safe_options_loading(self):
-        if type(self.soundsOption) == bool or type(self.soundsOption) == int:
-            pass
-        elif self.soundsOption == 'True' or '1' in self.soundsOption:
+        if isinstance(self.soundsOption, bool) or isinstance(self.soundsOption, int):
+            return
+        elif self.soundsOption in ('True', '1'):
             self.soundsOption = True
         else:
             self.soundsOption = False
-        if type(self.musicOption) == bool or type(self.musicOption) == int:
-            pass
-        elif self.musicOption == 'True' or '1' in self.musicOption:
+
+        if isinstance(self.musicOption, bool) or isinstance(self.musicOption, int):
+            return
+        elif self.musicOption in ('True', '1'):
             self.musicOption = True
         else:
             self.musicOption = False
-        if type(self.hardcoreOption) == bool or type(self.hardcoreOption) == int:
+        
+        if isinstance(self.hardcoreOption, bool) or isinstance(self.hardcoreOption, int):
             pass
-        elif self.hardcoreOption == 'True' or '1' in self.hardcoreOption:
+        elif self.hardcoreOption in ('True', '1'):
             self.hardcoreOption = True
         else:
             self.hardcoreOption = False
@@ -108,17 +111,22 @@ class HexTap(App):
         if self.main_menu.start_game:
             self.new_game()
             self.main_menu.start_game = False
+            
         if self.main_menu.show_help:
             self.show_help()
             self.main_menu.show_help = False
+            
         if self.help_menu.back_to_main:
             self.generate_main_menu()
             self.help_menu.back_to_main = False
+            
         if self.game_map and self.game_map.return_to_menu:
             self.generate_main_menu()
             self.game_map.return_to_menu = False
+            
         if self.musicOption and self.music.state == 'stop':
             self.music.play()
+            
         elif not self.musicOption and self.music.state == 'play':
             self.music.stop()
 
@@ -145,23 +153,24 @@ class HexTap(App):
 
     def on_config_change(self, config, section, key, value):
         if key == 'musicOption':
-            if type(value) == bool or type(value) == int:
+            if isinstance(value, bool) or isinstance(value, int):
                 self.musicOption = value
-            elif value == 'True' or '1' in value:
+            elif value in ('True', '1'):
                 self.musicOption = True
             else:
                 self.musicOption = False
+            
         elif key == 'soundsOption':
-            if type(value) == bool or type(value) == int:
+            if isinstance(value, bool) or isinstance(value, int):
                 self.soundsOption = value
-            elif value == 'True' or '1' in value:
+            elif value in ('True', '1'):
                 self.soundsOption = True
             else:
                 self.soundsOption = False
         elif key == 'hardcoreOption':
-            if type(value) == bool or type(value) == int:
+            if isinstance(value, bool) or isinstance(value, int):
                 self.hardcoreOption = value
-            elif value == 'True' or '1' in value:
+            elif value in ('True', '1'):
                 self.hardcoreOption = True
             else:
                 self.hardcoreOption = False
