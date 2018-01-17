@@ -12,21 +12,22 @@ from data.gameData import *
 class MapCanvas(FloatLayout):
     def __init__(self, cols, rows, difficulty, hardcoreOption, soundsOption, musicOptions, **kwargs):
         super(MapCanvas, self).__init__(**kwargs)
+        self.map_generator = MapGenerator(cols, rows)
+        self.difficulty = difficulty
+        self.hardcore_option = hardcoreOption
         self.soundsOption = soundsOption
         self.musicOption = musicOptions
-        self.hardcore_option = hardcoreOption
-        self.tile_map = None
-        self.counter = None
-        self.map_generator = MapGenerator(cols, rows)
+        
         self.hex_tiles = self.map_generator.generate_map(difficulty, hardcoreOption)
-        self.difficulty = difficulty
-        tile_map = self.build_map_tiles()
-        self.add_tile_map(tile_map)
+        
+        self.add_tile_map(self.build_map_tiles())
         self.star_counter = StarCounter(23)
         self.add_counter(self.star_counter)
         self.return_to_menu = False
         self.enemy_turn_splash = None
         self.tile_too_far_splash = None
+        self.tile_map = None
+        self.counter = None
 
     def add_tile_map(self, tile_map):
         for tile in tile_map.tiles:
@@ -35,7 +36,8 @@ class MapCanvas(FloatLayout):
                 py = tile.player.y
                 break
         self.tile_map = tile_map
-        self.tile_map.pos = (-px + Window.size[0] / 2, -py + Window.size[1] / 2)
+        self.tile_map.pos = (-px + Window.size[0] / 2,
+                             -py + Window.size[1] / 2)
         self.add_widget(self.tile_map)
 
     def add_counter(self, counter):
@@ -49,13 +51,15 @@ class MapCanvas(FloatLayout):
     def reload_level(self, new_map=False, new_difficulty=0):
         if new_difficulty:
             self.difficulty = new_difficulty
+            
         if self.tile_map.popup:
             self.tile_map.popup.dismiss()
+            
         self.clear_widgets()
         self.tile_map = None
         if new_map:
             self.hex_tiles = None
-            print new_difficulty
+            #print(new_difficulty)
             rows, cols = map_sizes[new_difficulty-1]
             self.map_generator = MapGenerator(cols, rows)
             self.hex_tiles = self.map_generator.generate_map(self.difficulty, self.hardcore_option)
