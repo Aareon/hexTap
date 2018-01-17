@@ -6,11 +6,7 @@ from data.gameData import *
 
 
 def get_new_type(current_type):
-    if random() > 0.8:
-        return choice(tiles)
-    else:
-        return current_type
-
+    return choice(tiles) if random() > 0.8 else current_type
 
 class Tile:
     def __init__(self, row, col, has_player, has_land, type, has_star, has_actor, level, key_type, exit_type, portal):
@@ -34,40 +30,48 @@ class MapGenerator:
 
     def generate_map(self, difficulty, hardcoreOption=False, clone=False):
         hex_tiles = []
-        landed_tiles = []
-        player_tiles = []
-        exit_tiles = []
-        key_tiles = []
         for row in reversed(range(self.v_tiles)):
             for col in range(self.h_tiles):
                 hex_tiles.append(Tile(row, col, False, True, None, False, False, 0, None, None, False))
-        keys_and_exits = []
+        
         i = 0
+        keys_and_exits = []
         for k, v in key_exit.items():
             if i < difficulty:
                 keys_and_exits.append((k, v))
                 i += 1
+                
+        player_tiles = []
+        key_tiles = []
+        exit_tiles = []
+        landed_tiles = []
         type_choice = choice(tiles)
         for tile in hex_tiles:
-            if (tile.col == 0 or tile.col == self.h_tiles - 1) and random() > 0.7:
+            chance = random()
+            if (tile.col == 0 or tile.col == self.h_tiles - 1) and chance > 0.7:
                 tile.has_land = False
-            if (tile.row == 0 or tile.row == self.v_tiles - 1) and random() > 0.7:
+                
+            if (tile.row == 0 or tile.row == self.v_tiles - 1) and chance > 0.7:
                 tile.has_land = False
-            if random() > 0.99 and (3 < tile.col < self.h_tiles - 3) and (3 < tile.row < self.v_tiles - 3):
+                
+            if chance > 0.99 and (3 < tile.col < self.h_tiles - 3) and (tile.row < self.v_tiles - 3 > 3):
                 tile.has_land = False
-            if random() > 0.55:
-                pass
-            elif random() > 0.6:
+            
+            if chance > 0.55:
+                continue
+            elif chance > 0.6:
                 tile.level = 1
-            elif random() > 0.8:
+            elif chance > 0.8:
                 tile.level = 2
-            elif random > 0.9:
+            elif chance > 0.9:
                 tile.level = 3
+                
             if tile.has_land:
                 if tile.row <= 1:
                     player_tiles.append(tile)
                 else:
                     key_tiles.append(tile)
+                    
                 if tile.row >= self.v_tiles - 3:
                     exit_tiles.append(tile)
 
@@ -76,6 +80,7 @@ class MapGenerator:
                 type_choice = get_new_type(type_choice)
 
         player_tile = choice(player_tiles)
+  
         if clone:
             i = player_tiles.index(player_tile)
             player_tiles.pop(i)
